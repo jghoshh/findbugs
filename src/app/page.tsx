@@ -13,14 +13,14 @@ type Sighting = {
 const demoSightings: Sighting[] = [
   {
     id: "demo-1",
-    description: "Tiny beetles near the vending machines. @<Science Atrium>",
+    description: "Spotted tiny beetles near the vending machines. @<Science Atrium>",
     location: "Science Atrium",
     imageUrl: "https://images.unsplash.com/photo-1504518633247-6bf4c7c6f62c?auto=format&fit=crop&w=400&q=80",
     createdAt: Date.now() - 1000 * 60 * 45
   },
   {
     id: "demo-2",
-    description: "Fruit flies around the compost bin. @<Cafe Patio>",
+    description: "Fruit flies hovering around the compost bin. @<Cafe Patio>",
     location: "Cafe Patio",
     imageUrl: "https://images.unsplash.com/photo-1586953208448-b95ef33822f8?auto=format&fit=crop&w=400&q=80",
     createdAt: Date.now() - 1000 * 60 * 90
@@ -91,12 +91,12 @@ export default function HomePage() {
     setErrors(null);
 
     if (!description.trim()) {
-      setErrors("Describe the bug and include @<location>.");
+      setErrors("Tell us what you saw and where. Use the @<location> tag to pin it.");
       return;
     }
 
     if (!file) {
-      setErrors("Attach a photo so others can verify the sighting.");
+      setErrors("Please attach a photo of the bug so others can verify the sighting.");
       return;
     }
 
@@ -123,34 +123,38 @@ export default function HomePage() {
   return (
     <main>
       <div className="container">
-        <div className="hero">
-          <span className="badge">Bugwatch</span>
-          <h1 className="hero-title">Campus bug sightings, organized by location.</h1>
-          <p className="helper-text" style={{ maxWidth: "720px", margin: 0 }}>
-            Upload a photo, include a quick note, and tag the spot with <strong>@&lt;location&gt;</strong>. We keep a
-            live tally of where bugs are turning up most often.
+        <header style={{ marginBottom: "1.25rem" }}>
+          <p className="badge">Campus Bugwatch</p>
+          <h1 style={{ margin: "0.3rem 0", fontSize: "2.3rem" }}>
+            Crowd-source the truth about campus infestations
+          </h1>
+          <p style={{ color: "var(--muted)", maxWidth: "720px", lineHeight: 1.6 }}>
+            Upload a picture of any bug you spot, tag the location with <strong>@&lt;place&gt;</strong>, and help
+            everyone see where infestations are brewing in real time.
           </p>
-        </div>
+        </header>
 
-        <section className="card" style={{ marginBottom: "1.25rem" }}>
+        <section className="card" style={{ marginBottom: "1rem" }}>
           <div className="section-title">
-            <h2>Upload details</h2>
-            <span className="badge">{totalSightings} sightings</span>
+            <h2>Submit a sighting</h2>
+            <span className="badge">Live</span>
           </div>
 
-          <form onSubmit={handleSubmit} className="grid" style={{ alignItems: "end" }}>
+          <form onSubmit={handleSubmit} className="grid" style={{ alignItems: "flex-end" }}>
             <div className="cards-column">
               <label className="input-group">
                 <span>Description</span>
                 <textarea
                   className="textarea"
-                  placeholder="Example: Line of ants by the trash bins @<East Quad>"
+                  placeholder="Example: Dozens of ants near the trash @<East Quad Loading Dock>"
                   rows={4}
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                 />
-                <p className="helper-text">Use one @&lt;location&gt; tag so the sighting is bucketed automatically.</p>
               </label>
+              <p className="helper-text">
+                Use @&lt;location&gt; anywhere in your note so we can bin it automatically. One tag is enough.
+              </p>
             </div>
 
             <div className="cards-column" style={{ gap: "0.5rem" }}>
@@ -163,57 +167,59 @@ export default function HomePage() {
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                 />
               </label>
-              <button type="submit" className="button">
-                Submit sighting
-              </button>
-              {errors ? <p style={{ color: "#b91c1c", margin: 0 }}>{errors}</p> : null}
+              <button type="submit" className="button">Report sighting</button>
+              {errors ? <p style={{ color: "#fca5a5", margin: 0 }}>{errors}</p> : null}
             </div>
           </form>
         </section>
 
-        <section className="card" style={{ marginBottom: "1rem" }}>
-          <div className="section-title">
-            <h2>Distribution by location</h2>
-            <span className="helper-text">Sorted by most sightings</span>
-          </div>
-          <div className="distribution-grid">
-            {distribution.map((item) => (
-              <div className="distribution-card" key={item.location}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <strong>@{item.location}</strong>
-                  <span style={{ color: "var(--muted)" }}>{item.count} reports</span>
-                </div>
-                <div className="progress" aria-label={`${item.location} sightings`}>
-                  <div
-                    className="progress-bar"
-                    style={{ width: `${Math.max(6, Math.round((item.count / topCount) * 100))}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="card">
-          <div className="section-title">
-            <h2>Latest uploads</h2>
-            <span className="helper-text">Freshest first</span>
-          </div>
-          <div className="cards-column">
-            {sightings.map((sighting) => (
-              <article className="sighting-card" key={sighting.id}>
-                <img src={sighting.imageUrl} alt={sighting.location} />
-                <div className="sighting-details">
-                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-                    <span className="location-pill">@{sighting.location}</span>
-                    <span className="timestamp">{prettyTime(sighting.createdAt)}</span>
+        <div className="grid">
+          <section className="card">
+            <div className="section-title">
+              <h2>Latest uploads</h2>
+              <span className="badge">{totalSightings} total</span>
+            </div>
+            <div className="cards-column">
+              {sightings.map((sighting) => (
+                <article className="sighting-card" key={sighting.id}>
+                  <img src={sighting.imageUrl} alt={sighting.location} />
+                  <div className="sighting-details">
+                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+                      <span className="location-pill">@{sighting.location}</span>
+                      <span className="timestamp">{prettyTime(sighting.createdAt)}</span>
+                    </div>
+                    <p style={{ margin: 0, lineHeight: 1.5 }}>{sighting.description}</p>
                   </div>
-                  <p style={{ margin: 0, lineHeight: 1.5 }}>{sighting.description}</p>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section className="card">
+            <div className="section-title">
+              <h2>Hotspots</h2>
+              <span className="badge">Auto-bucketed</span>
+            </div>
+            <p className="helper-text" style={{ marginTop: 0 }}>
+              We scan descriptions for <strong>@&lt;location&gt;</strong> tags and build a live tally of where bugs are
+              most common.
+            </p>
+            <div className="cards-column">
+              {distribution.map((item) => (
+                <div className="distribution-item" key={item.location}>
+                  <strong>@{item.location}</strong>
+                  <div className="progress" aria-label={`${item.location} sightings`}>
+                    <div
+                      className="progress-bar"
+                      style={{ width: `${Math.max(6, Math.round((item.count / topCount) * 100))}%` }}
+                    />
+                  </div>
+                  <span style={{ justifySelf: "end" }}>{item.count}</span>
                 </div>
-              </article>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        </div>
       </div>
     </main>
   );
