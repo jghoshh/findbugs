@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type Sighting = {
   id: string;
@@ -10,29 +10,87 @@ type Sighting = {
   createdAt: number;
 };
 
-const demoSightings: Sighting[] = [
-  {
-    id: "demo-1",
-    description: "Spotted tiny beetles near the vending machines. @<Science Atrium>",
-    location: "Science Atrium",
-    imageUrl: "https://images.unsplash.com/photo-1504518633247-6bf4c7c6f62c?auto=format&fit=crop&w=400&q=80",
-    createdAt: Date.now() - 1000 * 60 * 45
-  },
-  {
-    id: "demo-2",
-    description: "Fruit flies hovering around the compost bin. @<Cafe Patio>",
-    location: "Cafe Patio",
-    imageUrl: "https://images.unsplash.com/photo-1586953208448-b95ef33822f8?auto=format&fit=crop&w=400&q=80",
-    createdAt: Date.now() - 1000 * 60 * 90
-  },
-  {
-    id: "demo-3",
-    description: "Mosquito swarm close to the south pond @<Lakeside Lawn>",
-    location: "Lakeside Lawn",
-    imageUrl: "https://images.unsplash.com/photo-1438109491414-7198515b166b?auto=format&fit=crop&w=400&q=80",
-    createdAt: Date.now() - 1000 * 60 * 150
-  }
+const locationCatalog = [
+  { code: "SMN", name: "Séraphin-Marion 133-135 (Academic Hall)" },
+  { code: "HGN", name: "Séraphin-Marion 115 (Hagen)" },
+  { code: "WCA", name: "University 52 (William Commanda)" },
+  { code: "TBT", name: "Cumberland 550 (Tabaret)" },
+  { code: "LRR", name: "Laurier 100" },
+  { code: "MHN", name: "Laurier 70 (Hamelin)" },
+  { code: "MRT", name: "University 65 (Morisset)" },
+  { code: "UCU", name: "University 85 (University Centre / Jock-Turcot)" },
+  { code: "LPR", name: "Louis Pasteur 141" },
+  { code: "THN", name: "University 45 (Thompson Residence)" },
+  { code: "MNT", name: "University 125 (Montpetit)" },
+  { code: "PRZ", name: "University 50 (Pérez)" },
+  { code: "90U", name: "University 90 (residence)" },
+  { code: "MRD", name: "University 110 (Marchand Residence)" },
+  { code: "LMX-CRX", name: "Jean-Jacques Lussier 145 (Lamoureux + Learning Crossroads)" },
+  { code: "BRS", name: "Thomas-More 100 (Brooks Residence)" },
+  { code: "CBY", name: "Louis Pasteur 161 (Colonel By Hall)" },
+  { code: "LBC", name: "Louis Pasteur 45 (Leblanc Residence)" },
+  { code: "MCE", name: "Marie Curie 100" },
+  { code: "CRG", name: "Marie Curie 20 (Bioscience Phase I / CAREG)" },
+  { code: "FTX", name: "Louis Pasteur 57 (Fauteux Hall)" },
+  { code: "SMD", name: "University 60 (Simard)" },
+  { code: "VNR", name: "Jean-Jacques Lussier 136 (Vanier Hall)" },
+  { code: "GNN", name: "Marie Curie 30 (Bioscience Phase III / Gendron Hall)" },
+  { code: "MRN", name: "Louis Pasteur 140 (Marion Hall)" },
+  { code: "STN", name: "University 100 (Stanton Residence)" },
+  { code: "HSY", name: "Laurier 157 (Hyman Soloway Residence)" },
+  { code: "STE", name: "S.I.T.E. Building (Engineering/Technology)" },
+  { code: "DRO", name: "D’Iorio Hall" }
 ];
+
+const locationMap = Object.fromEntries(locationCatalog.map((item) => [item.code, item.name]));
+
+const seedCodes = [
+  "SMN",
+  "HGN",
+  "WCA",
+  "TBT",
+  "LRR",
+  "MHN",
+  "MRT",
+  "UCU",
+  "LPR",
+  "THN",
+  "MNT",
+  "PRZ",
+  "90U",
+  "MRD",
+  "LMX-CRX",
+  "BRS",
+  "CBY",
+  "LBC",
+  "MCE",
+  "CRG",
+  "FTX",
+  "SMD",
+  "VNR",
+  "GNN",
+  "MRN",
+  "STN",
+  "HSY",
+  "STE",
+  "DRO"
+];
+
+const buildSighting = (code: string, minutesAgo = 5): Sighting => {
+  const name = locationMap[code];
+  return {
+    id: `seed-${code}`,
+    description: `Seed sighting @<${code}>${name ? ` | ${name}` : ""}`,
+    location: code,
+    imageUrl: "https://placehold.co/200x120/ffffff/000000?text=Bug",
+    createdAt: Date.now() - minutesAgo * 60000
+  };
+};
+
+function createSeedSightings(initialCode = seedCodes[0]): Sighting[] {
+  if (!initialCode) return [];
+  return [buildSighting(initialCode)];
+}
 
 async function readFile(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -49,29 +107,23 @@ async function readFile(file: File): Promise<string> {
   });
 }
 
-function extractLocation(text: string): string {
-  const match = text.match(/@<([^>]+)>/);
-  if (match && match[1]) {
-    return match[1].trim();
-  }
-  return "Unspecified";
-}
-
-function prettyTime(timestamp: number): string {
-  const diff = Date.now() - timestamp;
-  const minutes = Math.max(1, Math.round(diff / 60000));
-  if (minutes < 60) return `${minutes}m ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  const days = Math.round(hours / 24);
-  return `${days}d ago`;
-}
-
 export default function HomePage() {
-  const [description, setDescription] = useState("");
+  const [locationTag, setLocationTag] = useState("");
   const [file, setFile] = useState<File | null>(null);
-  const [sightings, setSightings] = useState<Sighting[]>(demoSightings);
+  const [sightings, setSightings] = useState<Sighting[]>(() => createSeedSightings());
   const [errors, setErrors] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+  const [verifying, setVerifying] = useState(false);
+
+  useEffect(() => {
+    if (seedCodes.length === 0) return;
+    const randomCode = seedCodes[Math.floor(Math.random() * seedCodes.length)];
+    setSightings((prev) => {
+      const hasUserEntry = prev.some((item) => !item.id.startsWith("seed-"));
+      if (hasUserEntry) return prev;
+      return [buildSighting(randomCode)];
+    });
+  }, []);
 
   const distribution = useMemo(() => {
     const counts = new Map<string, number>();
@@ -86,12 +138,28 @@ export default function HomePage() {
   const totalSightings = sightings.length;
   const topCount = distribution[0]?.count ?? 1;
 
+  const validateImage = async (fileToCheck: File) => {
+    // Simulated verification hook; replace with a real API call when available.
+    const allowed = fileToCheck.type.startsWith("image/") && fileToCheck.size > 0;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    return allowed;
+  };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setErrors(null);
+    setStatus(null);
 
-    if (!description.trim()) {
-      setErrors("Tell us what you saw and where. Use the @<location> tag to pin it.");
+    if (!locationTag.trim()) {
+      setErrors("Add a building code so we can place the sighting.");
+      return;
+    }
+
+    const code = locationTag.trim().toUpperCase();
+    const locationName = locationMap[code];
+
+    if (!locationName) {
+      setErrors("Use a known building code (example: SMN, HGN, WCA).");
       return;
     }
 
@@ -101,120 +169,115 @@ export default function HomePage() {
     }
 
     try {
+      setVerifying(true);
+      const isValid = await validateImage(file);
+      if (!isValid) {
+        setErrors("Image failed verification. Try another photo.");
+        return;
+      }
+
       const imageUrl = await readFile(file);
-      const location = extractLocation(description);
+      const description = `Bug sighting @<${code}> | ${locationName}`;
 
       const newSighting: Sighting = {
         id: crypto.randomUUID(),
         description,
-        location,
+        location: code,
         imageUrl,
         createdAt: Date.now()
       };
 
       setSightings((prev) => [newSighting, ...prev]);
-      setDescription("");
+      setLocationTag("");
       setFile(null);
+      setStatus("Sighting verified and added.");
     } catch (error) {
       setErrors(error instanceof Error ? error.message : "Could not upload file");
+    } finally {
+      setVerifying(false);
     }
   };
 
   return (
-    <main>
+    <main className="page">
       <div className="container">
-        <header style={{ marginBottom: "1.25rem" }}>
-          <p className="badge">Campus Bugwatch</p>
-          <h1 style={{ margin: "0.3rem 0", fontSize: "2.3rem" }}>
-            Crowd-source the truth about campus infestations
-          </h1>
-          <p style={{ color: "var(--muted)", maxWidth: "720px", lineHeight: 1.6 }}>
-            Upload a picture of any bug you spot, tag the location with <strong>@&lt;place&gt;</strong>, and help
-            everyone see where infestations are brewing in real time.
-          </p>
+        <header className="page-header">
+          <h1>bugwatch</h1>
+          <p className="lede">Log a sighting, add a photo, and we count it automatically.</p>
         </header>
 
-        <section className="card" style={{ marginBottom: "1rem" }}>
-          <div className="section-title">
-            <h2>Submit a sighting</h2>
-            <span className="badge">Live</span>
-          </div>
+        <div className="layout">
+          <section className="panel upload-panel">
+            <div className="section-head">
+              <h2>Report a bug</h2>
+              <span className="pill">required</span>
+            </div>
 
-          <form onSubmit={handleSubmit} className="grid" style={{ alignItems: "flex-end" }}>
-            <div className="cards-column">
-              <label className="input-group">
-                <span>Description</span>
-                <textarea
-                  className="textarea"
-                  placeholder="Example: Dozens of ants near the trash @<East Quad Loading Dock>"
-                  rows={4}
-                  value={description}
-                  onChange={(event) => setDescription(event.target.value)}
-                />
-              </label>
+            <form onSubmit={handleSubmit} className="upload-form">
+              <div className="form-row column-row">
+                <label className="field condensed">
+                  <span>Photo</span>
+                  <input
+                    className="file-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                  />
+                </label>
+                <label className="field condensed">
+                  <span>Location code</span>
+                  <input
+                    className="input"
+                    type="text"
+                    placeholder="SMN"
+                    value={locationTag}
+                    list="location-codes"
+                    onChange={(event) => setLocationTag(event.target.value.toUpperCase())}
+                  />
+                </label>
+                <button type="submit" className="button" disabled={verifying}>
+                  {verifying ? "Verifying..." : "Report sighting"}
+                </button>
+              </div>
+
+              {errors ? <p className="error">{errors}</p> : null}
+              {status ? <p className="success">{status}</p> : null}
               <p className="helper-text">
-                Use @&lt;location&gt; anywhere in your note so we can bin it automatically. One tag is enough.
+                Use a building code (e.g., SMN, HGN, WCA) so it shows up in the distribution below.
               </p>
-            </div>
-
-            <div className="cards-column" style={{ gap: "0.5rem" }}>
-              <label className="input-group">
-                <span>Bug photo</span>
-                <input
-                  className="file-input"
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                />
-              </label>
-              <button type="submit" className="button">Report sighting</button>
-              {errors ? <p style={{ color: "#fca5a5", margin: 0 }}>{errors}</p> : null}
-            </div>
-          </form>
-        </section>
-
-        <div className="grid">
-          <section className="card">
-            <div className="section-title">
-              <h2>Latest uploads</h2>
-              <span className="badge">{totalSightings} total</span>
-            </div>
-            <div className="cards-column">
-              {sightings.map((sighting) => (
-                <article className="sighting-card" key={sighting.id}>
-                  <img src={sighting.imageUrl} alt={sighting.location} />
-                  <div className="sighting-details">
-                    <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-                      <span className="location-pill">@{sighting.location}</span>
-                      <span className="timestamp">{prettyTime(sighting.createdAt)}</span>
-                    </div>
-                    <p style={{ margin: 0, lineHeight: 1.5 }}>{sighting.description}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
+              <datalist id="location-codes">
+                {locationCatalog.map((item) => (
+                  <option key={item.code} value={item.code}>{`${item.code} — ${item.name}`}</option>
+                ))}
+              </datalist>
+            </form>
           </section>
 
-          <section className="card">
-            <div className="section-title">
-              <h2>Hotspots</h2>
-              <span className="badge">Auto-bucketed</span>
+          <section className="panel distribution-panel">
+            <div className="section-head">
+              <h2>Be careful of these places</h2>
+              <span className="pill">{totalSightings} sightings</span>
             </div>
             <p className="helper-text" style={{ marginTop: 0 }}>
-              We scan descriptions for <strong>@&lt;location&gt;</strong> tags and build a live tally of where bugs are
-              most common.
+              Sorted by where we have the most reports right now.
             </p>
-            <div className="cards-column">
+
+            <div className="distribution-grid">
               {distribution.map((item) => (
-                <div className="distribution-item" key={item.location}>
-                  <strong>@{item.location}</strong>
-                  <div className="progress" aria-label={`${item.location} sightings`}>
+                <div className="distribution-card" key={item.location}>
+                  <div className="distribution-top">
+                    <div>
+                      <strong>@{item.location}</strong>
+                      <div className="muted-text">{locationMap[item.location] ?? "Unknown building"}</div>
+                    </div>
+                    <span>{item.count} {item.count === 1 ? "report" : "reports"}</span>
+                  </div>
+                  <div className="bar" aria-label={`${item.location} sightings`}>
                     <div
-                      className="progress-bar"
-                      style={{ width: `${Math.max(6, Math.round((item.count / topCount) * 100))}%` }}
+                      className="bar-fill"
+                      style={{ width: `${Math.max(8, Math.round((item.count / topCount) * 100))}%` }}
                     />
                   </div>
-                  <span style={{ justifySelf: "end" }}>{item.count}</span>
                 </div>
               ))}
             </div>
