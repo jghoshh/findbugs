@@ -111,29 +111,8 @@ function createSeedSightings(): Sighting[] {
   return sightings;
 }
 
-async function readFile(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        resolve(reader.result);
-      } else {
-        reject(new Error("Could not read file"));
-      }
-    };
-    reader.onerror = () => reject(new Error("Could not read file"));
-    reader.readAsDataURL(file);
-  });
-}
-
 export default function HomePage() {
-  const [locationTag, setLocationTag] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [sightings, setSightings] = useState<Sighting[]>(() => createSeedSightings());
-  const [errors, setErrors] = useState<string | null>(null);
-  const [status, setStatus] = useState<string | null>(null);
-  const [verifying, setVerifying] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [sightings] = useState<Sighting[]>(() => createSeedSightings());
 
   const distribution = useMemo(() => {
     const counts = new Map<string, number>();
@@ -148,78 +127,16 @@ export default function HomePage() {
   const totalSightings = sightings.length;
   const topCount = distribution[0]?.count ?? 1;
 
-  const validateImage = async (fileToCheck: File) => {
-    // Simulated verification hook; replace with a real API call when available.
-    const allowed = fileToCheck.type.startsWith("image/") && fileToCheck.size > 0;
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return allowed;
-  };
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setErrors(null);
-    setStatus(null);
-
-    if (!locationTag.trim()) {
-      setErrors("Add a building code so we can place the sighting.");
-      return;
-    }
-
-    const code = locationTag.trim().toUpperCase();
-    const locationName = locationMap[code];
-
-    if (!locationName) {
-      setErrors("Use a known building code (example: SMN, HGN, WCA).");
-      return;
-    }
-
-    if (!file) {
-      setErrors("Please attach a photo of the bug so others can verify the sighting.");
-      return;
-    }
-
-    try {
-      setVerifying(true);
-      const isValid = await validateImage(file);
-      if (!isValid) {
-        setErrors("Image failed verification. Try another photo.");
-        return;
-      }
-
-      const imageUrl = await readFile(file);
-      const description = `Bug sighting @<${code}> | ${locationName}`;
-
-      const newSighting: Sighting = {
-        id: crypto.randomUUID(),
-        description,
-        location: code,
-        imageUrl,
-        createdAt: Date.now()
-      };
-
-      setSightings((prev) => [newSighting, ...prev]);
-      setLocationTag("");
-      setFile(null);
-      setStatus("Sighting verified and added.");
-    } catch (error) {
-      setErrors(error instanceof Error ? error.message : "Could not upload file");
-    } finally {
-      setVerifying(false);
-    }
-  };
-
   return (
     <main className="page">
       <div className="container">
         <header className="page-header">
           <h1>where are the bed bugs</h1>
           <a
-            href="#report"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSegME_pJhcor5EAVb39-ruyL9babzrZgcuEazVXPecp7O7flA/viewform?usp=header"
             className="link-button"
-            onClick={(event) => {
-              event.preventDefault();
-              setShowModal(true);
-            }}
+            target="_blank"
+            rel="noreferrer"
           >
             report a sighting
           </a>
@@ -251,54 +168,6 @@ export default function HomePage() {
             ))}
           </div>
         </section>
-
-        {showModal ? (
-          <div className="modal-backdrop" role="dialog" aria-modal="true">
-            <div className="modal">
-              <div className="modal-head">
-                <h2>report a sighting</h2>
-                <button className="link-button" type="button" onClick={() => setShowModal(false)}>
-                  close
-                </button>
-              </div>
-              <form onSubmit={handleSubmit} className="upload-form">
-                <div className="form-row column-row">
-                  <label className="field condensed">
-                    <span>photo</span>
-                    <input
-                      className="file-input"
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-                    />
-                  </label>
-                  <label className="field condensed">
-                    <span>campus building</span>
-                    <input
-                      className="input"
-                      type="text"
-                      placeholder="SMN"
-                      value={locationTag}
-                      list="location-codes"
-                      onChange={(event) => setLocationTag(event.target.value.toUpperCase())}
-                    />
-                  </label>
-                  <button type="submit" className="button" disabled={verifying}>
-                    {verifying ? "verifying..." : "report sighting"}
-                  </button>
-                </div>
-
-                {errors ? <p className="error">{errors}</p> : null}
-                {status ? <p className="success">{status}</p> : null}
-                <datalist id="location-codes">
-                  {locationCatalog.map((item) => (
-                    <option key={item.code} value={item.code}>{`${item.code} — ${item.name}`}</option>
-                  ))}
-                </datalist>
-              </form>
-            </div>
-          </div>
-        ) : null}
       </div>
     </main>
   );
