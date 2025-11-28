@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 type Sighting = {
   id: string;
@@ -87,9 +87,28 @@ const buildSighting = (code: string, minutesAgo = 5): Sighting => {
   };
 };
 
-function createSeedSightings(initialCode = seedCodes[0]): Sighting[] {
-  if (!initialCode) return [];
-  return [buildSighting(initialCode)];
+function createSeedSightings(): Sighting[] {
+  const groups = [
+    { code: "SMN", count: 10 },
+    { code: "HGN", count: 7 },
+    { code: "WCA", count: 3 },
+    { code: "TBT", count: 2 },
+    { code: "LRR", count: 2 },
+    { code: "MRT", count: 2 }
+  ];
+
+  const sightings: Sighting[] = [];
+  groups.forEach((group, groupIndex) => {
+    Array.from({ length: group.count }).forEach((_, i) => {
+      const minutesAgo = groupIndex * 10 + i + 1;
+      sightings.push({
+        ...buildSighting(group.code, minutesAgo),
+        id: `seed-${group.code}-${i}`
+      });
+    });
+  });
+
+  return sightings;
 }
 
 async function readFile(file: File): Promise<string> {
@@ -115,16 +134,6 @@ export default function HomePage() {
   const [status, setStatus] = useState<string | null>(null);
   const [verifying, setVerifying] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    if (seedCodes.length === 0) return;
-    const randomCode = seedCodes[Math.floor(Math.random() * seedCodes.length)];
-    setSightings((prev) => {
-      const hasUserEntry = prev.some((item) => !item.id.startsWith("seed-"));
-      if (hasUserEntry) return prev;
-      return [buildSighting(randomCode)];
-    });
-  }, []);
 
   const distribution = useMemo(() => {
     const counts = new Map<string, number>();
