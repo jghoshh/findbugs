@@ -185,8 +185,9 @@ b {
 .info-hover {
   position: absolute;
   top: 120%;
-  left: 0;
-  width: min(260px, 90vw);
+  right: 0;
+  left: auto;
+  width: min(260px, calc(100vw - 2rem));
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 10px;
