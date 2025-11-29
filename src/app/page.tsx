@@ -115,6 +115,13 @@ function createSeedSightings(): Sighting[] {
       location: "BRS",
       imageUrl: baseImage,
       createdAt: now - 85 * 60000
+    },
+    {
+      id: "seed-crx-1",
+      description: "Bedbug sighting in Learning Crossroads (CRX) — reddit.com",
+      location: "LMX-CRX",
+      imageUrl: baseImage,
+      createdAt: now - 105 * 60000
     }
   ];
 }
