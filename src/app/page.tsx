@@ -128,7 +128,7 @@ export default function HomePage() {
               <span className="info-text-link">how we got this data</span>
               <div className="info-hover">
                 current entries are manually scraped from r/geegees. future entries will come from form submissions
-                once we add verification checks.
+                once the submission passes verification checks.
               </div>
             </div>
           </div>
