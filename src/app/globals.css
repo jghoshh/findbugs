@@ -44,14 +44,28 @@ main {
 .page-header h1 {
   margin: 0;
   font-size: 2rem;
-  font-weight: 700;
+  font-weight: 400;
   letter-spacing: -0.02em;
+}
+
+h2,
+h3,
+strong,
+b {
+  font-weight: 400;
 }
 
 .lede {
   margin: 0;
   max-width: 760px;
   color: var(--muted);
+}
+
+.header-actions {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .panel {
@@ -61,11 +75,6 @@ main {
   padding: 0.9rem 1rem;
   margin-bottom: 1rem;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
-}
-
-.upload-panel {
-  width: 100%;
-  max-width: 360px;
 }
 
 .section-head {
@@ -79,6 +88,7 @@ main {
 .section-head h2 {
   margin: 0;
   font-size: 1.1rem;
+  font-weight: 400;
 }
 
 .pill {
@@ -88,92 +98,7 @@ main {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-}
-
-.upload-form {
-  display: grid;
-  gap: 0.3rem;
-}
-
-.field {
-  display: grid;
-  gap: 0.25rem;
-  font-size: 0.95rem;
-}
-
-.input,
-.file-input {
-  width: 100%;
-  border: 1px solid var(--ink);
-  border-radius: 10px;
-  padding: 0.7rem 0.9rem;
-  background: #ffffff;
-  color: var(--ink);
-  font-size: 0.95rem;
-}
-
-.textarea:focus,
-.file-input:focus {
-  outline: 2px solid #000000;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.column-row {
-  grid-template-columns: 1fr;
-}
-
-.button {
-  background: var(--accent);
-  color: #ffffff;
-  border: 1px solid var(--accent);
-  padding: 0.75rem 1.1rem;
-  font-size: 0.95rem;
-  font-family: "Roboto Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.button:hover {
-  background: #a30021;
-}
-
-.button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.helper-text {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
-
-.error {
-  margin: 0;
-  color: #111111;
-  font-weight: 600;
-}
-
-.success {
-  margin: 0;
-  color: #0f0f0f;
-  font-weight: 600;
-}
-
-.condensed span {
-  font-size: 0.85rem;
-}
-
-.column-row .button {
-  width: 100%;
+  font-weight: 400;
 }
 
 .distribution-grid {
@@ -221,12 +146,12 @@ main {
 
 .link-button {
   background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
+  border: 1px solid var(--ink);
+  color: var(--ink);
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
   font-family: "Roboto Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 0.9rem;
   cursor: pointer;
   text-decoration: none;
@@ -238,7 +163,47 @@ main {
 }
 
 .link-button:hover {
-  background: rgba(143, 0, 27, 0.08);
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.info-trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-text-link {
+  color: var(--ink);
+  font-weight: 400;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  cursor: default;
+}
+
+.info-hover {
+  position: absolute;
+  top: 120%;
+  left: 0;
+  width: 260px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 10;
+}
+
+.info-trigger:hover .info-hover,
+.info-trigger:focus-within .info-hover {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .modal-backdrop {

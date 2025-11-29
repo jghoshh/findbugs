@@ -114,15 +114,24 @@ export default function HomePage() {
     <main className="page">
       <div className="container">
         <header className="page-header">
-          <h1>where are the bed bugs</h1>
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSegME_pJhcor5EAVb39-ruyL9babzrZgcuEazVXPecp7O7flA/viewform?usp=header"
-            className="link-button"
-            target="_blank"
-            rel="noreferrer"
-          >
-            report a sighting
-          </a>
+          <h1>where are the bed bugs?</h1>
+          <div className="header-actions">
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSegME_pJhcor5EAVb39-ruyL9babzrZgcuEazVXPecp7O7flA/viewform?usp=header"
+              className="link-button"
+              target="_blank"
+              rel="noreferrer"
+            >
+              report a sighting
+            </a>
+            <div className="info-trigger" aria-label="how we got this data">
+              <span className="info-text-link">how we got this data</span>
+              <div className="info-hover">
+                current entries are manually scraped from r/geegees. future entries will come from form submissions
+                once we add verification checks.
+              </div>
+            </div>
+          </div>
         </header>
 
         <section className="panel distribution-panel">
