@@ -45,38 +45,6 @@ const locationCatalog = [
 
 const locationMap = Object.fromEntries(locationCatalog.map((item) => [item.code, item.name]));
 
-const seedCodes = [
-  "SMN",
-  "HGN",
-  "WCA",
-  "TBT",
-  "LRR",
-  "MHN",
-  "MRT",
-  "UCU",
-  "LPR",
-  "THN",
-  "MNT",
-  "PRZ",
-  "90U",
-  "MRD",
-  "LMX-CRX",
-  "BRS",
-  "CBY",
-  "LBC",
-  "MCE",
-  "CRG",
-  "FTX",
-  "SMD",
-  "VNR",
-  "GNN",
-  "MRN",
-  "STN",
-  "HSY",
-  "STE",
-  "DRO"
-];
-
 function createSeedSightings(): Sighting[] {
   const baseImage = "https://placehold.co/200x120/ffffff/000000?text=Bug";
   const now = Date.now();
