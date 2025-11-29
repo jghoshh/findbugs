@@ -16,8 +16,8 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Script
-          src="https://us.umami.is/script.js"
-          data-website-id={process.env.NEXT_PUBLIC_UMAMI_ID ?? ""}
+          src="https://cloud.umami.is/script.js"
+          data-website-id="27f593ae-68a2-4f67-ba59-1b633cf6bde0"
           strategy="afterInteractive"
         />
         {children}
